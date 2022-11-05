@@ -1,125 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <windows.h>
-
-void printn(char* s,int n);
-void pyramid(void);
 
 typedef struct{
-    int top;
-    unsigned max;
-    int* array;
-}Stack;
+    long int phoneNum;
+    char *name;
+}phoneContact;
 
-Stack* newStack(unsigned size);
-int isEmpty(Stack* stack);
-int isFull(Stack* stack);
-void push(Stack* stack,int element);
-int pop(Stack* stack);
-int peek(Stack* stack);
-double evalPrefix(char expr[]);
-
-int main(void)
-{
-    char expression[] = "+9*26";
-    printf("%.2lf",evalPrefix(expression));   
-    
-    return 0;
-}
-
-/*int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdline,int nCmdShow){
-    MessageBox(0,"Hi","Title",0);
-    return 0;
-}*/
-
-void printn(char* s,int n){
+void display(phoneContact* arr,int n){
     for(int i=0;i<n;i++){
-        printf("%s",s);
+        printf("Name: %s\n",(arr+i)->name);
+        printf("Phone no.: %ld\n", (arr+i)->phoneNum);
     }
 }
-void pyramid(void){
-    int n,i,j,num;
-    printf("Enter no. of rows: ");
+
+void Create(phoneContact* arr,int n){
+    for(int i=0;i<n;i++){
+        printf("Enter phone no.: ");
+        scanf("%ld",&(arr+i)->phoneNum);
+        printf("Enter name: ");
+        (arr+i)->name = (char*)malloc(20);
+        scanf("%s", (arr+i)->name);
+    }
+}
+
+long int FindContact(phoneContact *arr,int n,char *name){
+    long int result;
+    for(int i=0;i<n;i++){
+        if(strcmp(name,(arr+i)->name) == 0){
+            result = (arr+i)->phoneNum;
+            return result;
+        }
+    }
+    result = -1;
+    return result;
+}
+
+int main(){
+    int n;
+    printf("Enter number of entries: ");
     scanf("%d",&n);
-
-    for(i=1;i<=n;i++){
-        num = i;
-        printn(" ",2*(n-i));
-        printf("%d ",num);
-        for(j=i; j < 2*i-1 ; j++){
-            printf("%d ",++num);
-        }
-        for(j=2*i-1 ; j>i; j--){
-            printf("%d ",--num);
-        }
-        printf("\n");
-    }
-}
-Stack* newStack(unsigned size){
-    Stack* stack = (Stack*)malloc(sizeof(Stack));
-    stack->max = size;
-    stack->top = -1;
-    stack->array = (int*)malloc(size*sizeof(int));
-    return stack;
-}
-int isFull(Stack* stack){
-    return stack->top == stack->max - 1;
-}
-int isEmpty(Stack* stack){
-    return stack->top == -1;
-}
-void push(Stack* stack,int element){
-    if(isFull(stack)){
-        printf("Stack overflow");
-        return;
-    }
-    stack->array[++stack->top] = element;
-    printf("Pushing %d to stack\tTop = %d\n",element,stack->top);
-}
-int pop(Stack* stack){
-    if(isEmpty(stack)){
-        printf("Stack underflow");
+    phoneContact *arr = (phoneContact*)calloc(n,sizeof(phoneContact));
+    Create(arr,n);
+    printf("Displaying contacts:\n");
+    display(arr,n);
+    char *name1;
+    name1 = (char*)malloc(20);
+    printf("Enter name to be searched: ");
+    scanf("%s",name1);
+    long int num = FindContact(arr,n,name1);
+    if(num==-1){
+        printf("Missing entry");
+        arr = realloc(arr,n+1);
+        printf("Enter phone no.: ");
+        scanf("%ld",&(arr[n].phoneNum));
+        n++;
     }
     else{
-        return stack->array[stack->top--];
+        printf("Phone no. of searched contact: %ld",num);
     }
-}
-int peek(Stack* stack){
-    if(isEmpty(stack)){
-        printf("Empty stack");
-    }
-    else{
-        return stack->array[stack->top];
-    }
-}
-double evalPrefix(char expr[]){
-    int size = strlen(expr),i;
-    Stack* stack = newStack(size);
+    printf("\nDisplaying contacts:\n");
+    display(arr,n);
+    free(arr);
 
-    for(i = size-1 ; i>=0; i--){
-        if(isdigit(expr[i])){
-            push(stack, (int)expr[i]-'0');
-        }
-        else{
-            int a = pop(stack);
-            int b = pop(stack);
-
-            switch(expr[i]){
-                case '+':
-                push(stack,a+b);
-                break;
-                case '-':
-                push(stack,a-b);
-                break;
-                case '*':
-                push(stack,a*b);
-                break;
-                case '/':
-                push(stack,a/b);
-                break;
-            }
-        }
-    }
-    return peek(stack);
+    return 0;
 }
